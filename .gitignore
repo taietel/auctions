@@ -1,3 +1,6 @@
 venv
 .git
 .vscode
+Lib/
+Scripts/
+pyvenv.cfg
