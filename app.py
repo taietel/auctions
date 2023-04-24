@@ -1,27 +1,19 @@
 import os
 
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 
-db = SQLAlchemy()
+from notifications import notifications_bp
+from config import Config
+from models import db
 
 
 def create_app(config_class=Config):
     app = Flask(__name__, instance_relative_config=False)
-    app.config.from_mapping(
-        SECRET_KEY="dev",
-        DATABASE=os.path.join(app.instance_path, "auctionator.sqlite"),
-    )
+    app.config.from_object(config_class)
 
-    if test_config is None:
-        app.config.from_pyfile("config.py", silent=True)
-    else:
-        app.config.from_mapping(test_config)
+    db.init_app(app)
 
-    try:
-        os.makedirs(app.instance_path)
-    except OSError:
-        pass
+    app.register_blueprint(notifications_bp)
 
     @app.route("/hello")
     def hello():

@@ -1,15 +1,18 @@
-from . import db
+# from . import db
+from datetime import datetime
+
+from models import db
 
 
-class Product(db.Model):
+class Notification(db.Model):
     __tablename__ = "notifications"
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
-    description = db.Column(db.Text)
-    price = db.Column(db.Float, nullable=False)
-    # category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=False)
-    # category = db.relationship('Category', backref=db.backref('products', lazy=True))
+    type = db.Column(db.String)
+    status = db.Column(db.String)  # active, read, sent,
+    created_at = db.Column(db.DateTime, default=datetime.now)
+    updated_at = db.Column(db.DateTime, default=datetime.now)
 
     def __repr__(self):
-        return f"<Product {self.name}>"
+        return f"<Notification {self.name}>"
