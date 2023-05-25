@@ -6,3 +6,5 @@ Lib/
 Scripts/
 pyvenv.cfg
 __pycache__
+var
+auctionator/__pycache__/
