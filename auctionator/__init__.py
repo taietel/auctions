@@ -1,5 +1,5 @@
 import os
-
+from dotenv import load_dotenv
 from flask import Flask
 
 # from config import Config
@@ -9,7 +9,7 @@ def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
 
     app.config.from_mapping(
-        SECRET_KEY=os.environ.get('SECRET_KEY') or 'key',
+        SECRET_KEY=os.environ.get("SECRET_KEY") or "key",
         DATABASE=os.path.join(app.instance_path, "flaskr.sqlite"),
     )
 
@@ -28,8 +28,10 @@ def create_app(test_config=None):
         return "hello world"
 
     from . import db
+
     db.init_app(app)
     from . import auth
+
     app.register_blueprint(auth.bp)
 
     return app
