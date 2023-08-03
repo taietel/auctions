@@ -2,9 +2,11 @@ venv
 .git
 .vscode
 .idea
+.env
 Lib/
 Scripts/
 pyvenv.cfg
 __pycache__
 var
 auctionator/__pycache__/
+.DS_Store

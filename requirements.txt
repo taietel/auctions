@@ -13,3 +13,4 @@ SQLAlchemy==2.0.10
 typing_extensions==4.5.0
 virtualenv==20.22.0
 Werkzeug==2.2.3
+PyJWT~=2.7.0
