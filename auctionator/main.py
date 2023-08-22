@@ -1,10 +1,9 @@
 import os
 from dotenv import load_dotenv
 from flask import Flask
+from auctionator.notifications import notifications_bp
 
 load_dotenv("../.env")
-
-from auctionator.notifications import notifications_bp
 
 
 def create_app(test_config=None):
