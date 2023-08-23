@@ -1,7 +1,6 @@
 # from . import db
 from datetime import datetime
-
-from models import db
+from auctionator.database import db
 
 
 class Notification(db.Model):
