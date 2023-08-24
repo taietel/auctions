@@ -13,6 +13,7 @@ def create_db():
 
 
 def init_db(app):
+    import auctionator.users.models.user
     db.init_app(app)
 
 

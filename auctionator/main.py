@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 from flask import Flask
 from auctionator.database import init_db
 from auctionator import views
+from .auth import auth_bp
 
 load_dotenv("../.env")
 
@@ -10,6 +11,8 @@ load_dotenv("../.env")
 def add_views(app):
     for view in views:
         app.register_blueprint(view)
+
+    app.register_blueprint(auth_bp)
 
 
 def create_app(test_config=None):
@@ -22,5 +25,6 @@ def create_app(test_config=None):
 
     add_views(app)
     init_db(app)
+    app.app_context().push()
 
     return app

@@ -4,7 +4,7 @@ products_bp = Blueprint("products", __name__)
 
 
 @products_bp.route("/products", methods=["GET"])
-def index():
+def list_products():
     return 'get products'
 
 

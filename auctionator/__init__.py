@@ -1,6 +1,7 @@
-# from .main import *
+from flask import Blueprint
 from .notifications import *
 from .products import *
-# from .products import product_views
+from .users import *
 
-views = [product_views, notifications_views]
+
+views = [product_views, notifications_views, users_views]

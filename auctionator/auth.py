@@ -1,87 +1,63 @@
 import functools
-from flask import (Blueprint, flash, g, redirect, render_template, request, session, url_for)
-from werkzeug.security import check_password_hash, generate_password_hash
-from auctionator.database import get_db
 
-bp = Blueprint('auth', __name__, url_prefix='/auth')
+import jwt
+from flask import (Blueprint, redirect, request, session, url_for, jsonify)
+from auctionator.database import db
+from auctionator.users.controllers.user import create_user, authenticate
+from auctionator.config import SECRET_KEY
 
-@bp.route('/register', methods=('GET', 'POST'))
+auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
+
+
+@auth_bp.route('/api/register', methods=['POST'])
+@auth_bp.route('/api/register/', methods=['POST'])
 def register():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
+    try:
+        data = request.json
+        username = data.get("username")
+        password = data.get("password")
 
-        db = get_db()
-        error = None
+        try:
+            create_user(username, password)
+        except db.IntegrityError:
+            return jsonify({"message": "User already exists."}), 400
 
-        if not username:
-            error = 'Username is required.'
-        elif not password:
-            error = 'Password is required.'
+        return jsonify({"message": "User created successfully."}), 201
 
-        if error is None:
-            try:
-                db.execute(
-                    "INSERT INTO user (username, password) VALUES (?, ?)",
-                    (username, generate_password_hash(password)),
-                )
-                db.commit()
-            except db.IntegrityError:
-                error = f"User {username} is already registered."
-            else:
-                return redirect(url_for('auth.login'))
+    except Exception as e:
+        return jsonify({"message": "No data provided.", "error": str(e)}), 400
 
-        flash(error)
-    return render_template('auth/register.html')
 
-@bp.route('/login', methods=('GET', 'POST'))
+@auth_bp.route('/api/login', methods=['POST'])
+@auth_bp.route('/api/login/', methods=['POST'])
 def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        db = get_db()
-        error = None
-        user = db.execute(
-            'SELECT * FROM user WHERE username = ?', (username,)
-        ).fetchone()
+    try:
+        data = request.json
 
-        if user is None:
-            error = 'Incorrect username.'
-        elif not check_password_hash(user['password'], password):
-            error = 'Incorrect password.'
+        if not data:
+            return jsonify({"message": "No data provided."}), 400
 
-        if error is None:
-            session.clear()
-            session['user_id'] = user['id']
-            return redirect(url_for('index'))
+        user = authenticate(data.get("username"), data.get("password"))
 
-        flash(error)
+        if user:
+            try:
+                user["token"] = jwt.encode(
+                    {"user_id": user["id"]},
+                    SECRET_KEY,
+                    algorithm="HS256"
+                )
+                return jsonify(user)
 
-    return render_template('auth/login.html')
+            except Exception as user_exception:
+                return jsonify({"message": "Something went wrong", "error": str(user_exception)}), 500
 
-@bp.before_app_request
-def load_logged_in_user():
-    user_id = session.get('user_id')
+    except Exception as e:
+        return jsonify({"message": "No data provided.", "error": str(e)}), 400
 
-    if user_id is None:
-        g.user = None
-    else:
-        g.user = get_db().execute(
-            'SELECT * FROM user WHERE id = ?', (user_id,)
-        ).fetchone()
+    return jsonify({"message": "Invalid username or password."}), 401
 
 
-def login_required(view):
-    @functools.wraps(view)
-    def wrapped_view(**kwargs):
-        if g.user is None:
-            return redirect(url_for('auth.login'))
-
-        return view(**kwargs)
-
-    return wrapped_view
-
-@bp.route('/logout')
+@auth_bp.route('/logout')
 def logout():
     session.clear()
     return redirect(url_for('index'))
