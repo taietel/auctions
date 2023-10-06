@@ -15,5 +15,9 @@ def get_products():
     return "get products"
 
 
+def get_product_by_id(product_id):
+    return "get product by id"
+
+
 def get_products_json():
     return "get users json"

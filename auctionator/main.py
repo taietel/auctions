@@ -1,4 +1,3 @@
-import os
 from dotenv import load_dotenv
 from flask import Flask
 from auctionator.database import init_db

@@ -1,5 +1,3 @@
-import functools
-
 import jwt
 from flask import (Blueprint, redirect, request, session, url_for, jsonify)
 from auctionator.database import db
